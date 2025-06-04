@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="author" content="Untree.co">
+  <link rel="shortcut icon" href="/images/LOGO [ajanta R].jpeg.jpg">
+
+  <meta name="description" content="" />
+  <meta name="keywords" content="bootstrap, bootstrap4" />
+
+  <!-- Bootstrap CSS -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="css/tiny-slider.css" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+  <title>Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites by Untree.co </title>
+</head>
+
+<body>
+  <!-- Start Header/Navigation -->
+  <nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Furni navigation bar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <div class="logo-rect">
+          <img src="images/LOGO [ajanta R].jpeg.jpg" alt="Akshar Enterprise Logo" />
+        </div>
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarsFurni">
+        <ul class="custom-navbar-nav navbar-nav ms-auto mb-2 mb-md-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="active"><a class="nav-link" href="shop.html">Products</a></li>
+          <li><a class="nav-link" href="about.html">About us</a></li>
+          <li><a class="nav-link" href="contact.html">Contact us</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <!-- End Header/Navigation -->
+
+  <!-- Start Hero Section -->
+  <div class="hero">
+    <div class="container">
+      <div class="row justify-content-between">
+        <div class="col-lg-5">
+          <div class="intro-excerpt">
+            <h1 id="category-title">Products</h1>
+          </div>
+        </div>
+        <div class="col-lg-7">
+          <div class="dropdown mt-3">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+              Filter by Category
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton" style="max-height: 400px; overflow-y: auto; margin: 30px;">
+              <li><a class="dropdown-item" href="#" data-category="all">All Categories</a></li>
+              <li><a class="dropdown-item" href="#" data-category="Tile Adhesive/Putty">Tile Adhesive/putty</a></li>
+              <li><a class="dropdown-item" href="#" data-category="Tile Spacer">Tile Spacer</a></li>
+              <li><a class="dropdown-item" href="#" data-category="Notched Trowel">Notched Trowel</a></li>
+              <li><a class="dropdown-item" href="#" data-category="Waterproofing">Waterproofing</a></li>
+              <li><a class="dropdown-item" href="#" data-category="FRP Manhole Cover">FRP Manhole Cover</a></li>
+              <!-- <li><a class="dropdown-item" href="#" data-category="other">Other</a></li> -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Hero Section -->
+
+  <div class="untree_co-section product-section before-footer-section">
+    <div class="container">
+      <div class="row" id="product-list">
+        <!-- Products will be dynamically loaded here -->
+      </div>
+    </div>
+  </div>
+  <script>
+    // Delegate click event to product cards for navigation
+    document.addEventListener('click', function (e) {
+      const productLink = e.target.closest('.product-item-link');
+      if (productLink) {
+        // Prevent default only if the click is not on the "Enquire Now" button or "read more" link
+        if (
+          !e.target.classList.contains('enquiry-button') &&
+          !e.target.classList.contains('read-more')
+        ) {
+          window.location.href = productLink.getAttribute('href');
+          e.preventDefault();
+        }
+      }
+    });
+  </script>
+  <!-- Description Modal -->
+  <div id="description-modal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <p id="full-description"></p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    // Global array to hold all products
+    let allProducts = [];
+
+    // Function to read XLSX file and parse data
+    function readXlsxFile(file, callback) {
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet);
+        callback(jsonData);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    // Function to render products to the page
+    function renderProducts(products) {
+      const productList = document.getElementById('product-list');
+      productList.innerHTML = ''; // Clear existing products
+
+      products.forEach((product, index) => {
+        const fullDescription = product['Description'] || '';
+        const shortDescription = fullDescription.length > 100
+          ? fullDescription.substring(0, 100) + '...'
+          : fullDescription;
+        const productUrl = `product-details.html?name=${encodeURIComponent(product['Product Name'].replace(/\s+/g, '-'))}`;
+        const productHTML = `
+          <div class="col-12 col-md-4 col-lg-3 mb-5">
+            <a href="${productUrl}" class="product-item-link">
+              <div class="product-item">
+                <img src="${product['Image'] || 'images/default-product.png'}" class="img-fluid product-thumbnail" alt="${product['Product Name']}">
+                <h3 class="product-title">${product['Product Name']}</h3>
+                <p class="product-description" id="desc-${index}">
+                  ${shortDescription}
+                  ${fullDescription.length > 100 ? `<a href="#" class="read-more" data-index="${index}">...more</a>` : ''}
+                </p>
+                <strong class="product-category">${product['Category'] || ''}</strong>
+                <div class="d-flex justify-content-center mt-3">
+                  <button
+                    onclick="event.preventDefault(); event.stopPropagation(); sendEnquiry('${product['Product Name']}', '${product['Description']}', '${product['Image'] || 'images/default-product.png'}')"
+                    class="btn btn-primary enquiry-button">
+                    Enquire Now
+                  </button>
+                </div>
+              </div>
+            </a>
+          </div>
+        `;
+
+        productList.innerHTML += productHTML;
+
+        // Save full description in a data attribute for later use
+        setTimeout(() => {
+          const readMore = document.querySelector(`.read-more[data-index="${index}"]`);
+          if (readMore) {
+            readMore.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              document.getElementById('full-description').innerText = fullDescription;
+              document.getElementById('description-modal').style.display = 'block';
+            });
+          }
+        }, 0);
+      });
+    }
+
+    // Load XLSX file and populate products
+    function loadProductsFromXlsx(file) {
+      readXlsxFile(file, function (products) {
+        allProducts = products; // Store for filtering
+        renderProducts(allProducts);
+      });
+    }
+
+    // Load products from a local file in the root folder
+    fetch('products.xlsx')
+      .then(response => response.blob())
+      .then(blob => {
+        loadProductsFromXlsx(blob);
+      })
+      .catch(error => console.error('Error loading products.xlsx:', error));
+
+    // Category filter logic via dropdown
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', function (e) {
+          e.preventDefault();
+          const selectedCategory = this.getAttribute('data-category');
+          const categoryTitle = document.getElementById('category-title');
+
+          // Update the title to the selected category or default to "Products"
+          categoryTitle.textContent = selectedCategory === 'all' ? 'Products' : selectedCategory;
+
+          if (selectedCategory === 'all') {
+            renderProducts(allProducts);
+          } else {
+            const filtered = allProducts.filter(p =>
+              p['Category']?.trim().toLowerCase() === selectedCategory.toLowerCase()
+            );
+            renderProducts(filtered);
+          }
+        });
+      });
+
+      // Close modal when clicking the close button
+      document.querySelector('.close').addEventListener('click', function () {
+        document.getElementById('description-modal').style.display = 'none';
+      });
+
+      // Close modal when clicking outside the modal content
+      window.addEventListener('click', function (event) {
+        const modal = document.getElementById('description-modal');
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+
+    // WhatsApp enquiry function
+    function sendEnquiry(name, description, imagePath) {
+      const phone = "9662790002"; // Your WhatsApp number
+      const website = window.location.origin;
+      const imageURL = `${website}/${imagePath}`;
+      const message = `📦 *Product Enquiry*\n\n🛍️ *Name:* ${name}\n📝 *Description:* ${description}\n🖼️ *Image:* ${imageURL}\n\nI'd like to know more about this product.`;
+      const encodedMessage = encodeURIComponent(message);
+      const waLink = `https://wa.me/${phone}?text=${encodedMessage}`;
+      window.open(waLink, '_blank');
+    }
+  </script>
+
+  <!-- Start Footer Section -->
+		<footer class="footer-section">
+			<div class="container relative">
+
+				<div class="sofa-img d-none d-sm-block">
+					<img src="images/c.png" alt="Image" class="img-fluid">
+				</div>
+
+				<div class="row">
+					<div class="col-lg-8 d-flex align-items-center justify-content-start mb-4">
+						<img src="images/LOGO [ajanta R].jpeg.jpg" alt="Akshar Enterprise Logo" style="max-height: 80px; width: auto;">
+					</div>
+				</div>
+
+				<div class="row g-5 mb-5">
+					<div class="col-lg-4">
+						<div class="mb-4 footer-logo-wrap"><a href="#" class="footer-logo">Akshar Enterprise 	<span>.</span></a></div>
+						<p class="mb-4">Akshar Enterprise Rajkot is a leading manufacturer
+										of high-quality tools and equipment for the construction 
+										and tile installation industries. Based in Rajkot, India, 
+										the company has been serving customers for over a decade.
+
+						</p>
+
+						
+						<ul class="list-unstyled custom-social">
+							<li><a href="https://www.instagram.com/superajanta_/"><span class="fa fa-brands fa-facebook-f"></span></a></li>
+							<!-- <li><a href="#"><span class="fa fa-brands fa-twitter"></span></a></li> -->
+							<li><a href="https://www.instagram.com/superajanta_/"><span class="fa fa-brands fa-instagram"></span></a></li>
+							<!-- <li><a href="#"><span class="fa fa-brands fa-linkedin"></span></a></li> -->
+						</ul>
+					</div>
+
+					<div class="col-lg-8">
+						<div class="row links-wrap">
+							<div class="col-6 col-sm-6 col-md-3">
+								<ul class="list-unstyled">
+									<li><a href="#">About us</a></li>
+									<li><a href="#">Services</a></li>
+									<li><a href="#">Blog</a></li>
+									<li><a href="#">Contact us</a></li>
+								</ul>
+							</div>
+
+							<div class="col-6 col-sm-6 col-md-3">
+								<ul class="list-unstyled">
+									<li><a href="#">Tile Adhesive</a></li>
+									<li><a href="#">Tile Spacer</a></li>
+									<li><a href="#">Notched Trowel</a></li>
+								</ul>
+							</div>
+
+							<div class="col-6 col-sm-6 col-md-3">
+								<ul class="list-unstyled">
+									<li><a href="#">Wall Putty</a></li>
+									<li><a href="#">Waterproffing</a></li>
+									<li><a href="#">Epoxy Grout</a></li>
+									<li><a href="#">Hardner</a></li>
+								</ul>
+							</div>
+
+							<div class="col-6 col-sm-6 col-md-3">
+								<ul class="list-unstyled">
+									<li><a href="#">Jack Levellar</a></li>
+									<li><a href="#">Hammar</a></li>
+									<li><a href="#">Liftter</a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+				</div>
+
+				<div class="border-top copyright">
+							<p class="mb-2 text-center text-lg-start">Copyright &copy;<script>document.write(new Date().getFullYear());</script>. All Rights Reserved. &mdash;  Akshar Enterprise<!-- License information: https://untree.co/license/ -->
+			</p>
+							
+						</div>
+
+						
+
+					</div>
+				</div>
+
+			</div>
+		</footer>
+		<!-- End Footer Section -->	
+
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/tiny-slider.js"></script>
+  <script src="js/custom.js"></script>
+</body>
+</html>

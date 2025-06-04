@@ -1,0 +1,322 @@
+/* Related Products Section */
+    .related-products-section .product-card {
+      background: transparent;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+      margin-bottom: 20px;
+      text-align: center;
+      padding: 20px;
+      border: 1px solid #e9ecef;
+      position: relative;
+      min-height: 320px;
+    }
+    .related-products-section .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      border: 1px solid #007bff;
+    }
+    .related-products-section .product-item {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      height: 100%;
+    }
+    .related-products-section .product-thumbnail {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      transition: transform 0.3s ease;
+    }
+    .related-products-section .product-card:hover .product-thumbnail {
+      transform: scale(1.05);
+    }
+    .related-products-section .product-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin: 0 0 10px;
+      line-height: 1.3;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      min-height: 2.6rem;
+    }
+    .related-products-section .product-price {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #28a745;
+      margin-bottom: 15px;
+      display: block;
+      min-height: 1.2rem;
+    }
+    .related-products-section .enquire-btn {
+      width: 100%;
+      padding: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .related-products-section .enquire-btn:hover {
+      background: linear-gradient(90deg, #0056b3, #003d80);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+    .related-products-section .row {
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+    .related-products-section .col-12,
+    .related-products-section .col-md-3 {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    /* Product Details Section */
+    .product-section {
+      padding: 40px 0;
+      background: #f8f9fa;
+    }
+    .product-image-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      padding: 15px;
+      transition: transform 0.3s ease;
+    }
+    .product-image-container:hover {
+      transform: scale(1.02);
+    }
+    .product-thumbnail {
+      width: 100%;
+      height: auto;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .product-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      line-height: 1.2;
+    }
+    .product-category {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #6c757d;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .product-price {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #28a745;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .product-info-section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    .product-info-section .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .product-info-section p {
+      font-size: 1rem;
+      color: #555;
+      line-height: 1.6;
+    }
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .spec-key {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 0.95rem;
+    }
+    .spec-value {
+      color: #555;
+      font-size: 0.9rem;
+    }
+    .features-list, .applications-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .features-list li, .applications-list li {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 10px;
+      position: relative;
+      padding-left: 20px;
+    }
+    .features-list li::before, .applications-list li::before {
+      content: '\f058';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: #007bff;
+      position: absolute;
+      left: 0;
+      top: 2px;
+    }
+    .back-button, .enquiry-button {
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .back-button {
+      background: #6c757d;
+      color: #fff;
+      border: none;
+    }
+    .back-button:hover {
+      background: #5a6268;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+    .enquiry-button {
+      background: linear-gradient(90deg, #007bff, #0056b3);
+      color: #fff;
+      border: none;
+    }
+    .enquiry-button:hover {
+      background: linear-gradient(90deg, #0056b3, #003d80);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    }
+    .product-not-found {
+      text-align: center;
+      padding: 40px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+    .product-not-found h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #dc3545;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .product-not-found p {
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991px) {
+      .related-products-section .product-card {
+        min-height: 300px;
+      }
+      .related-products-section .product-thumbnail {
+        height: 140px;
+      }
+      .related-products-section .product-title {
+        font-size: 1rem;
+        min-height: 2.4rem;
+      }
+      .related-products-section .product-price {
+        font-size: 0.95rem;
+      }
+      .related-products-section .enquire-btn {
+        padding: 8px;
+        font-size: 0.85rem;
+      }
+      .product-title {
+        font-size: 1.75rem;
+      }
+      .product-price {
+        font-size: 1.25rem;
+      }
+      .product-info-section {
+        padding: 15px;
+      }
+      .product-info-section .section-title {
+        font-size: 1.1rem;
+      }
+      .back-button, .enquiry-button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 767px) {
+      .related-products-section .product-card {
+        min-height: 280px;
+      }
+      .related-products-section .product-thumbnail {
+        height: 120px;
+      }
+      .related-products-section .product-title {
+        font-size: 0.95rem;
+        min-height: 2.2rem;
+      }
+      .related-products-section .product-price {
+        font-size: 0.9rem;
+      }
+      .related-products-section .enquire-btn {
+        padding: 6px;
+        font-size: 0.8rem;
+      }
+      .product-title {
+        font-size: 1.5rem;
+      }
+      .product-price {
+        font-size: 1.1rem;
+      }
+      .product-info-section {
+        padding: 10px;
+      }
+      .product-info-section .section-title {
+        font-size: 1rem;
+      }
+      .back-button, .enquiry-button {
+        padding: 8px 16px;
+        font-size: 0.85rem;
+      }
+      .product-image-container {
+        padding: 10px;
+      }
+      .product-thumbnail {
+        max-height: 300px;
+      }
+    }

@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .action-buttons button {
+            margin-right: 5px;
+        }
+        .thumbnail-preview {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: cover;
+        }
+        .main-content {
+            min-height: calc(100vh - 56px);
+            padding-bottom: 20px;
+        }
+        .modal-xl {
+            max-width: 95%;
+        }
+        .specs-container, .features-container, .applications-container {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f8f9fa;
+        }
+        .spec-item, .feature-item, .application-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .spec-item input, .feature-item textarea, .application-item textarea {
+            flex: 1;
+        }
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 8px;
+            cursor: pointer;
+        }
+        .add-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+        }
+        .section-title {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">Product Admin Panel</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="save-changes">
+                            <i class="fas fa-save"></i> Save All Changes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html" id="back-to-website">
+                            <i class="fas fa-arrow-left"></i> Back to Website
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-content">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2>Product Management</h2>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-success" id="add-product-btn">
+                    <i class="fas fa-plus"></i> Add New Product
+                </button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-light">
+                <div class="row">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="search-products" placeholder="Search products...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="category-filter">
+                            <option value="">All Categories</option>
+                            <!-- Categories will be populated dynamically -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Image</th>
+                                <th>Hot Product</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-table-body">
+                            <!-- Product rows will be populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-md-6">
+                        <span id="total-products">Total Products: 0</span>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <button class="btn btn-primary" id="save-to-excel">
+                            <i class="fas fa-download"></i> Save to Excel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal fade" id="product-modal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modal-title">Add/Edit Product</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 80vh; overflow-y: auto;">
+                    <form id="product-form">
+                        <input type="hidden" id="product-id">
+                        
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                Basic Information
+                            </h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="product-name" class="form-label">Product Name *</label>
+                                    <input type="text" class="form-control" id="product-name" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="product-category" class="form-label">Category *</label>
+                                    <select class="form-select" id="product-category" required>
+                                        <option value="">Select Category</option>
+                                        <option value="Tile Spacer">Tile Spacer</option>
+                                        <option value="Notched Trowel">Notched Trowel</option>
+                                        <option value="Tile Adhesive/Putty">Tile Adhesive/Putty</option>
+                                        <option value="FRP Manhole Cover">FRP Manhole Cover</option>
+                                        <option value="Waterproofing">Waterproofing</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="product-description" class="form-label">Description *</label>
+                                <textarea class="form-control" id="product-description" rows="3" required placeholder="Product description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" id="hot-product">
+                                    <label class="form-check-label" for="hot-product">Mark as Hot Product</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Pricing Section -->
+                        <div class="form-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-rupee-sign"></i>
+                                Pricing
+                            </h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="product-price" class="form-label">Price *</label>
+                                    <input type="number" class="form-control" id="product-price" required placeholder="0.00" step="0.01">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Section -->
+                        <div class="form-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-image"></i>
+                                Product Image
+                            </h6>
+                            <div class="mb-3">
+                                <label for="product-image-upload" class="form-label">Product Image</label>
+                                <input type="file" class="form-control" id="product-image-upload" accept="image/*">
+                                <div class="mt-2" id="image-preview-container">
+                                    <img id="image-preview" style="max-height: 150px; max-width: 100%; display: none;" class="img-thumbnail">
+                                </div>
+                                <input type="hidden" id="product-image" value="">
+                                <small class="text-muted">Select an image from your device (JPG, PNG)</small>
+                            </div>
+                        </div>
+
+                        <!-- Product Details Section -->
+                        <div class="form-section">
+                            <h6 class="section-title">
+                                <i class="fas fa-list-ul"></i>
+                                Product Details
+                            </h6>
+                            <!-- Specifications -->
+                            <div class="specs-container mb-4">
+                                <h6>Specifications</h6>
+                                <div id="specs-container"></div>
+                                <button type="button" class="add-btn" id="add-spec-btn">
+                                    <i class="fas fa-plus"></i> Add Specification
+                                </button>
+                            </div>
+                            <!-- Features -->
+                            <div class="features-container mb-4">
+                                <h6>Key Features</h6>
+                                <div id="features-container"></div>
+                                <button type="button" class="add-btn" id="add-feature-btn">
+                                    <i class="fas fa-plus"></i> Add Feature
+                                </button>
+                            </div>
+                            <!-- Applications -->
+                            <div class="applications-container">
+                                <h6>Applications</h6>
+                                <div id="applications-container"></div>
+                                <button type="button" class="add-btn" id="add-application-btn">
+                                    <i class="fas fa-plus"></i> Add Application
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-product">Save Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="delete-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Delete Product</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this product? This action cannot be undone.</p>
+                    <input type="hidden" id="delete-product-id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirm-delete">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Check authentication on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            if (!localStorage.getItem('username')) {
+                window.location.href = 'login.php';
+            }
+
+            // Add logout functionality
+            document.getElementById('logout').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('username');
+                fetch('login.php?action=logout')
+                    .then(() => {
+                        window.location.href = 'login.php';
+                    });
+            });
+
+            // Global variables
+            let products = [];
+            let originalFile = null;
+            let currentFileName = 'products.xlsx';
+            let categories = new Set();
+
+            // Bootstrap modals
+            const productModal = new bootstrap.Modal(document.getElementById('product-modal'));
+            const deleteModal = new bootstrap.Modal(document.getElementById('delete-modal'));
+
+            // Load Excel file on page load
+            loadExcelFile();
+
+            // Set up event listeners
+            document.getElementById('add-product-btn').addEventListener('click', showAddProductModal);
+            document.getElementById('save-product').addEventListener('click', saveProduct);
+            document.getElementById('confirm-delete').addEventListener('click', deleteProduct);
+            document.getElementById('save-to-excel').addEventListener('click', saveToExcel);
+            document.getElementById('save-changes').addEventListener('click', saveToExcel);
+            document.getElementById('category-filter').addEventListener('change', filterProducts);
+            document.getElementById('search-products').addEventListener('input', filterProducts);
+            document.getElementById('back-to-website').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.href = 'index.html';
+            });
+
+            // Add event listeners for dynamic sections
+            document.getElementById('add-spec-btn').addEventListener('click', addSpecification);
+            document.getElementById('add-feature-btn').addEventListener('click', addFeature);
+            document.getElementById('add-application-btn').addEventListener('click', addApplication);
+
+            // Add event listener for image upload preview
+            document.getElementById('product-image-upload').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.getElementById('image-preview');
+                        preview.src = e.target.result;
+                        preview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Function to add specification field
+            function addSpecification() {
+                const container = document.getElementById('specs-container');
+                const specItem = document.createElement('div');
+                specItem.className = 'spec-item';
+                specItem.innerHTML = `
+                    <input type="text" class="form-control" placeholder="Specification name (e.g., Material)" name="spec-key">
+                    <input type="text" class="form-control" placeholder="Specification value (e.g., Plastic)" name="spec-value">
+                    <button type="button" class="remove-btn" onclick="removeItem(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(specItem);
+            }
+
+            // Function to add feature field
+            function addFeature() {
+                const container = document.getElementById('features-container');
+                const featureItem = document.createElement('div');
+                featureItem.className = 'feature-item';
+                featureItem.innerHTML = `
+                    <textarea class="form-control" placeholder="Feature description" name="feature" rows="2"></textarea>
+                    <button type="button" class="remove-btn" onclick="removeItem(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(featureItem);
+            }
+
+            // Function to add application field
+            function addApplication() {
+                const container = document.getElementById('applications-container');
+                const applicationItem = document.createElement('div');
+                applicationItem.className = 'application-item';
+                applicationItem.innerHTML = `
+                    <textarea class="form-control" placeholder="Application description" name="application" rows="2"></textarea>
+                    <button type="button" class="remove-btn" onclick="removeItem(this)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                container.appendChild(applicationItem);
+            }
+
+            // Function to remove item
+            function removeItem(button) {
+                button.parentElement.remove();
+            }
+
+            // Function to load Excel file
+            function loadExcelFile() {
+                fetch('products.xlsx')
+                    .then(response => response.arrayBuffer())
+                    .then(data => {
+                        originalFile = data;
+                        const workbook = XLSX.read(data, { type: 'array' });
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        
+                        // Convert sheet to JSON
+                        products = XLSX.utils.sheet_to_json(worksheet);
+                        
+                        // Populate categories
+                        products.forEach(product => {
+                            if (product.Category) {
+                                categories.add(product.Category);
+                            }
+                        });
+                        
+                        populateCategoryFilter();
+                        renderProductTable();
+                    })
+                    .catch(error => {
+                        console.error('Error loading Excel file:', error);
+                        alert('Error loading product data. Please check the console for details.');
+                    });
+            }
+
+            // Function to populate the category filter dropdown
+            function populateCategoryFilter() {
+                const categorySelect = document.getElementById('category-filter');
+                categorySelect.innerHTML = '<option value="">All Categories</option>';
+                
+                categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category;
+                    option.textContent = category;
+                    categorySelect.appendChild(option);
+                });
+            }
+
+            // Function to render the product table
+            function renderProductTable(filteredProducts = null) {
+                const productsToRender = filteredProducts || products;
+                const tableBody = document.getElementById('product-table-body');
+                tableBody.innerHTML = '';
+                
+                productsToRender.forEach(product => {
+                    const row = document.createElement('tr');
+                    
+                    // ID cell
+                    const idCell = document.createElement('td');
+                    idCell.textContent = product.ID || '';
+                    row.appendChild(idCell);
+                    
+                    // Product Name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = product['Product Name'] || '';
+                    row.appendChild(nameCell);
+                    
+                    // Category cell
+                    const categoryCell = document.createElement('td');
+                    categoryCell.textContent = product.Category || '';
+                    row.appendChild(categoryCell);
+                    
+                    // Price cell
+                    const priceCell = document.createElement('td');
+                    priceCell.textContent = product.Price ? `₹${product.Price}` : '';
+                    row.appendChild(priceCell);
+                    
+                    // Image cell
+                    const imageCell = document.createElement('td');
+                    if (product.Image) {
+                        const img = document.createElement('img');
+                        img.src = product.Image;
+                        img.alt = product['Product Name'] || 'Product Image';
+                        img.className = 'thumbnail-preview';
+                        imageCell.appendChild(img);
+                    } else {
+                        imageCell.textContent = 'No image';
+                    }
+                    row.appendChild(imageCell);
+                    
+                    // Hot Product cell
+                    const hotProductCell = document.createElement('td');
+                    hotProductCell.textContent = product.HotProduct ? '✔' : '';
+                    row.appendChild(hotProductCell);
+                    
+                    // Actions cell
+                    const actionsCell = document.createElement('td');
+                    actionsCell.className = 'action-buttons';
+                    
+                    // View button
+                    const viewBtn = document.createElement('button');
+                    viewBtn.className = 'btn btn-sm btn-info';
+                    viewBtn.innerHTML = '<i class="fas fa-eye"></i>';
+                    viewBtn.title = 'View on Website';
+                    viewBtn.addEventListener('click', () => {
+                        window.location.href = `product-details.html?name=${encodeURIComponent(product['Product Name'].replace(/\s+/g, '-'))}`;
+                    });
+                    actionsCell.appendChild(viewBtn);
+                    
+                    // Edit button
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-sm btn-primary';
+                    editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                    editBtn.title = 'Edit';
+                    editBtn.addEventListener('click', () => showEditProductModal(product));
+                    actionsCell.appendChild(editBtn);
+                    
+                    // Delete button
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-sm btn-danger';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.title = 'Delete';
+                    deleteBtn.addEventListener('click', () => showDeleteConfirmation(product));
+                    actionsCell.appendChild(deleteBtn);
+                    
+                    row.appendChild(actionsCell);
+                    tableBody.appendChild(row);
+                });
+                
+                // Update total products count
+                document.getElementById('total-products').textContent = `Total Products: ${productsToRender.length}`;
+            }
+
+            // Function to filter products
+            function filterProducts() {
+                const searchTerm = document.getElementById('search-products').value.toLowerCase();
+                const selectedCategory = document.getElementById('category-filter').value;
+                
+                const filteredProducts = products.filter(product => {
+                    const matchesSearch = 
+                        (product['Product Name'] && product['Product Name'].toLowerCase().includes(searchTerm)) ||
+                        (product.Description && product.Description.toLowerCase().includes(searchTerm));
+                    
+                    const matchesCategory = 
+                        !selectedCategory || 
+                        (product.Category && product.Category === selectedCategory);
+                    
+                    return matchesSearch && matchesCategory;
+                });
+                
+                renderProductTable(filteredProducts);
+            }
+
+            // Function to show the add product modal
+            function showAddProductModal() {
+                // Clear form
+                document.getElementById('product-form').reset();
+                document.getElementById('product-id').value = '';
+                document.getElementById('product-image').value = '';
+                document.getElementById('hot-product').checked = false;
+                document.getElementById('modal-title').textContent = 'Add New Product';
+                
+                // Clear dynamic sections
+                document.getElementById('specs-container').innerHTML = '';
+                document.getElementById('features-container').innerHTML = '';
+                document.getElementById('applications-container').innerHTML = '';
+                
+                // Add initial fields
+                addSpecification();
+                addFeature();
+                addApplication();
+                
+                // Hide image preview
+                document.getElementById('image-preview').style.display = 'none';
+                
+                // Show modal
+                productModal.show();
+            }
+
+            // Function to show the edit product modal
+            function showEditProductModal(product) {
+                document.getElementById('product-id').value = product.ID || '';
+                document.getElementById('product-name').value = product['Product Name'] || '';
+                document.getElementById('product-category').value = product.Category || '';
+                document.getElementById('product-description').value = product.Description || '';
+                document.getElementById('product-price').value = product.Price || '';
+                document.getElementById('product-image').value = product.Image || '';
+                document.getElementById('hot-product').checked = product.HotProduct || false;
+                
+                // Clear and populate specifications
+                const specsContainer = document.getElementById('specs-container');
+                specsContainer.innerHTML = '';
+                
+                if (product.Specifications) {
+                    try {
+                        const specs = typeof product.Specifications === 'string' ? 
+                            JSON.parse(product.Specifications) : product.Specifications;
+                        
+                        if (Array.isArray(specs)) {
+                            specs.forEach(spec => {
+                                addSpecification();
+                                const lastSpec = specsContainer.lastElementChild;
+                                lastSpec.querySelector('input[name="spec-key"]').value = spec.key || '';
+                                lastSpec.querySelector('input[name="spec-value"]').value = spec.value || '';
+                            });
+                        }
+                    } catch (e) {
+                        addSpecification();
+                    }
+                } else {
+                    addSpecification();
+                }
+                
+                // Clear and populate features
+                const featuresContainer = document.getElementById('features-container');
+                featuresContainer.innerHTML = '';
+                
+                if (product.Features) {
+                    try {
+                        const features = typeof product.Features === 'string' ? 
+                            JSON.parse(product.Features) : product.Features;
+                        
+                        if (Array.isArray(features)) {
+                            features.forEach(feature => {
+                                addFeature();
+                                const lastFeature = featuresContainer.lastElementChild;
+                                lastFeature.querySelector('textarea[name="feature"]').value = feature;
+                            });
+                        }
+                    } catch (e) {
+                        addFeature();
+                    }
+                } else {
+                    addFeature();
+                }
+                
+                // Clear and populate applications
+                const applicationsContainer = document.getElementById('applications-container');
+                applicationsContainer.innerHTML = '';
+                
+                if (product.Applications) {
+                    try {
+                        const applications = typeof product.Applications === 'string' ? 
+                            JSON.parse(product.Applications) : product.Applications;
+                        
+                        if (Array.isArray(applications)) {
+                            applications.forEach(application => {
+                                addApplication();
+                                const lastApplication = applicationsContainer.lastElementChild;
+                                lastApplication.querySelector('textarea[name="application"]').value = application;
+                            });
+                        }
+                    } catch (e) {
+                        addApplication();
+                    }
+                } else {
+                    addApplication();
+                }
+                
+                // Show existing image if available
+                const imagePreview = document.getElementById('image-preview');
+                if (product.Image) {
+                    imagePreview.src = product.Image;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+                
+                document.getElementById('modal-title').textContent = 'Edit Product';
+                
+                productModal.show();
+            }
+
+            // Function to show delete confirmation
+            function showDeleteConfirmation(product) {
+                document.getElementById('delete-product-id').value = product.ID;
+                deleteModal.show();
+            }
+
+            // Function to collect form data
+            function collectFormData() {
+                // Collect specifications
+                const specs = [];
+                const specItems = document.querySelectorAll('.spec-item');
+                specItems.forEach(item => {
+                    const key = item.querySelector('input[name="spec-key"]').value.trim();
+                    const value = item.querySelector('input[name="spec-value"]').value.trim();
+                    if (key && value) {
+                        specs.push({ key, value });
+                    }
+                });
+                
+                // Collect features
+                const features = [];
+                const featureItems = document.querySelectorAll('.feature-item');
+                featureItems.forEach(item => {
+                    const feature = item.querySelector('textarea[name="feature"]').value.trim();
+                    if (feature) {
+                        features.push(feature);
+                    }
+                });
+                
+                // Collect applications
+                const applications = [];
+                const applicationItems = document.querySelectorAll('.application-item');
+                applicationItems.forEach(item => {
+                    const application = item.querySelector('textarea[name="application"]').value.trim();
+                    if (application) {
+                        applications.push(application);
+                    }
+                });
+                
+                // Format Product Details for display
+                let productDetails = '';
+                if (specs.length > 0) {
+                    productDetails += '<strong>Specifications:</strong><ul>';
+                    specs.forEach(spec => {
+                        productDetails += `<li>${spec.key}: ${spec.value}</li>`;
+                    });
+                    productDetails += '</ul>';
+                }
+                if (features.length > 0) {
+                    productDetails += '<strong>Key Features:</strong><ul>';
+                    features.forEach(feature => {
+                        productDetails += `<li>${feature}</li>`;
+                    });
+                    productDetails += '</ul>';
+                }
+                if (applications.length > 0) {
+                    productDetails += '<strong>Applications:</strong><ul>';
+                    applications.forEach(application => {
+                        productDetails += `<li>${application}</li>`;
+                    });
+                    productDetails += '</ul>';
+                }
+                
+                return {
+                    specs,
+                    features,
+                    applications,
+                    productDetails: productDetails || 'No additional details available.'
+                };
+            }
+
+            // Function to handle file upload and save product
+            async function saveProduct() {
+                const id = document.getElementById('product-id').value;
+                const productName = document.getElementById('product-name').value;
+                const category = document.getElementById('product-category').value;
+                const description = document.getElementById('product-description').value;
+                const price = document.getElementById('product-price').value;
+                const hotProduct = document.getElementById('hot-product').checked;
+                let image = document.getElementById('product-image').value;
+                const imageFile = document.getElementById('product-image-upload').files[0];
+                
+                if (!productName || !category || !description || !price) {
+                    alert('Please fill in all required fields (marked with *)');
+                    return;
+                }
+                
+                // Collect dynamic data
+                const { specs, features, applications, productDetails } = collectFormData();
+                
+                // Handle image upload if a new file is selected
+                if (imageFile) {
+                    try {
+                        const imageFileName = await uploadImage(imageFile);
+                        image = 'images/' + imageFileName;
+                    } catch (error) {
+                        console.error('Image upload failed:', error);
+                        alert('Failed to upload image. Please try again.');
+                        return;
+                    }
+                }
+                
+                const productData = {
+                    ID: id ? parseInt(id) : null,
+                    'Product Name': productName,
+                    Category: category,
+                    Description: description,
+                    Price: parseFloat(price),
+                    Image: image,
+                    HotProduct: hotProduct,
+                    'Product Details': productDetails,
+                    Specifications: JSON.stringify(specs),
+                    Features: JSON.stringify(features),
+                    Applications: JSON.stringify(applications)
+                };
+                
+                if (id) {
+                    // Edit existing product
+                    const index = products.findIndex(p => p.ID == id);
+                    if (index !== -1) {
+                        products[index] = productData;
+                    }
+                } else {
+                    // Create new product
+                    const newId = products.length > 0 
+                        ? Math.max(...products.map(p => p.ID || 0)) + 1 
+                        : 1;
+                        
+                    productData.ID = newId;
+                    products.push(productData);
+                }
+                
+                // Add new category if not exists
+                if (category && !categories.has(category)) {
+                    categories.add(category);
+                    populateCategoryFilter();
+                }
+                
+                // Update UI
+                renderProductTable();
+                
+                // Close modal
+                productModal.hide();
+                
+                // Show success message
+                alert('Product saved successfully!');
+            }
+
+            // Function to upload image to server
+            async function uploadImage(file) {
+                return new Promise((resolve, reject) => {
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    
+                    fetch('upload-image.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resolve(data.filename);
+                        } else {
+                            reject(data.error || 'Image upload failed');
+                        }
+                    })
+                    .catch(error => {
+                        reject(error);
+                    });
+                });
+            }
+
+            // Function to delete product
+            function deleteProduct() {
+                const id = document.getElementById('delete-product-id').value;
+                const index = products.findIndex(p => p.ID == id);
+                
+                if (index !== -1) {
+                    products.splice(index, 1);
+                    renderProductTable();
+                    alert('Product deleted successfully!');
+                }
+                
+                deleteModal.hide();
+            }
+
+            // Function to save changes to Excel
+            function saveToExcel() {
+                // Sort products by ID
+                products.sort((a, b) => (a.ID || 0) - (b.ID || 0));
+                
+                // Create new worksheet
+                const worksheet = XLSX.utils.json_to_sheet(products);
+                
+                // Create new workbook
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Products');
+                
+                // Save to same filename
+                const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+                
+                // Using fetch API to save file back to server
+                saveFileToServer(wbout)
+                    .then(response => {
+                        if (response.ok) {
+                            alert('Changes saved successfully!');
+                        } else {
+                            alert('Failed to save changes. Please try again.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error saving file:', error);
+                        alert('Error saving file. See console for details.');
+                        
+                        // Fallback to client-side download
+                        saveClientSide(wbout);
+                    });
+            }
+
+            // Function to save file to server
+            function saveFileToServer(data) {
+                const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const formData = new FormData();
+                formData.append('file', blob, currentFileName);
+                
+                return fetch('save-excel.php', {
+                    method: 'POST',
+                    body: formData
+                });
+            }
+
+            // Fallback function to save client-side
+            function saveClientSide(data) {
+                const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = currentFileName;
+                a.click();
+                
+                setTimeout(() => {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            }
+
+            // Function to get hot products for homepage
+            function getHotProducts() {
+                return products.filter(product => product.HotProduct);  
+            }
+        });
+    </script>
+</body>
+</html>
